@@ -18,10 +18,10 @@ console = Console()
 error_console = Console(stderr=True, style="bold red")
 # install_rich_traceback(console=error_console, show_locals=True, width=None, suppress=[torch, pickle])
 
-TRAIN_FILE_NAME = 'dataset_0.pkl'
-EVAL_FILE_NAME = 'dataset_0.pkl'
-EPOCH_COUNT = 200
-BATCH_SIZE = 1
+TRAIN_FILE_NAME = 'dataset_1.pkl'
+EVAL_FILE_NAME = 'dataset_1.pkl'
+EPOCH_COUNT = 300
+BATCH_SIZE = 2
 DEVICE = torch.device('mps' if BATCH_SIZE >= 35 else 'cpu')
 
 model = Net()
@@ -47,7 +47,7 @@ with console.status('Loading datasets...', spinner='bouncingBall') as status:
 
     status.update('Setting up...')
     criterion = nn.PairwiseDistance(p=1)
-    optimizer = SGD(model.parameters(), lr=1e-3, momentum=0.9)
+    optimizer = SGD(model.parameters(), lr=1e-4, momentum=0.8)
 
     training_dataloader = DataLoader(training_dataset, batch_size=BATCH_SIZE, shuffle=False)
     evaluation_dataloader = DataLoader(testing_dataset, batch_size=BATCH_SIZE, shuffle=False)
@@ -70,7 +70,11 @@ def train(_model: nn.Module, dataloader: DataLoader, track: Callable[[Iterable],
     for input_, truth in track(dataloader):
         optimizer.zero_grad()
 
+        # print(input_.shape)
+
         prediction = _model(input_)
+
+        # print(prediction.shape, truth.shape)
 
         loss = torch.mean(criterion(prediction, truth))
         loss.backward()
